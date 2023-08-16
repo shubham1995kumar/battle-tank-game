@@ -1,29 +1,46 @@
-using UnityEngine;
 using UnityEngine.PostProcessing;
+using MinAttr = UnityEngine.MinAttribute;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace UnityEditor.PostProcessing
 {
     [CustomPropertyDrawer(typeof(MinAttribute))]
     sealed class MinDrawer : PropertyDrawer
     {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            MinAttribute attribute = (MinAttribute)base.attribute;
+            MinAttribute postProcessingMinAttribute = (MinAttribute)base.attribute;
+
+            VisualElement container = new VisualElement();
 
             if (property.propertyType == SerializedPropertyType.Integer)
             {
-                int v = EditorGUI.IntField(position, label, property.intValue);
-                property.intValue = (int)Mathf.Max(v, attribute.min);
+                IntegerField integerField = new IntegerField(property.displayName);
+                integerField.value = property.intValue;
+                integerField.RegisterValueChangedCallback((evt) =>
+                {
+                    property.intValue = UnityEngine.Mathf.Max(evt.newValue, (int)postProcessingMinAttribute.min);
+                });
+                container.Add(integerField);
             }
             else if (property.propertyType == SerializedPropertyType.Float)
             {
-                float v = EditorGUI.FloatField(position, label, property.floatValue);
-                property.floatValue = Mathf.Max(v, attribute.min);
+                FloatField floatField = new FloatField(property.displayName);
+                floatField.value = property.floatValue;
+                floatField.RegisterValueChangedCallback((evt) =>
+                {
+                    property.floatValue = UnityEngine.Mathf.Max(evt.newValue, postProcessingMinAttribute.min);
+                });
+                container.Add(floatField);
             }
             else
             {
-                EditorGUI.LabelField(position, label.text, "Use Min with float or int.");
+                Label label = new Label($"Use Min with float or int.");
+                container.Add(label);
             }
+
+            return container;
         }
     }
 }
