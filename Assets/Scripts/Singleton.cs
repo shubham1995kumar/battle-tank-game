@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿//singleton.cs
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
