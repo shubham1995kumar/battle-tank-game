@@ -1,16 +1,15 @@
-// TankModel.cs
-using UnityEngine;
-
 public class TankModel
 {
-    public float movementSpeed { get; private set; }
-    public float rotationSpeed { get; private set; }
-    public Material color { get; private set; }
-
-    public TankModel(float _movementSpeed, float _rotationSpeed, Material _color)
+    private TankController tankController;
+    public TankModel(float _speed, float _health)
     {
-        movementSpeed = _movementSpeed;
-        rotationSpeed = _rotationSpeed;
-        color = _color;
+        speed = _speed;
+        health = _health;
     }
+    public void SetTankController(TankController _tankController)
+    {
+        tankController = _tankController;
+    }
+    public float speed { get; }
+    public float health { get; }
 }

@@ -1,41 +1,37 @@
-//tankcontroller.cs
 using UnityEngine;
-
-public class TankController 
+public class TankController
 {
-    private TankModel tankModel;
-    private TankView tankView;
-    private Rigidbody rb;
-
-    public TankController(TankModel _tankModel, TankView _tankView)
+    public TankController(TankView _tankView, float _speed, float _health, TankType _tankType, FixedJoystick _joystick = null, CameraController cameraController = null, float x = 0, float z = 0)
     {
-        tankModel = _tankModel;
-        tankView = _tankView;
-        rb = tankView.GetRigidbody();
+        if (_tankType == TankType.Player)
+        {
+            tankView = GameObject.Instantiate<TankView>(_tankView);
+            cameraController.SetTankTransform(tankView.transform);
+        }
+        else
+        {
+            tankView = GameObject.Instantiate<TankView>(_tankView, new Vector3(Random.Range(-x, x), 0, Random.Range(-z, z)), Quaternion.identity);
+        }
+        tankModel = new TankModel(_speed, _health);
 
-        //tankModel.SetTankController(this);
         tankView.SetTankController(this);
-        tankView.ChangeColor(tankModel.color);
-    }
+        tankView.SetTankType(_tankType);
+        tankModel.SetTankController(this);
 
-    public void Move(float movement, float movementSpeed)
-    {
-        rb.velocity = tankView.transform.forward * movement * movementSpeed;
+        if (_joystick != null)
+            tankView.SetJoystick(_joystick);
+        rb = tankView.GetRigidbody();
     }
+    public TankModel tankModel { get; }
+    public TankView tankView { get; }
+    private Rigidbody rb;
+    Vector3 direction;
+    public void MoveTank(float _horizontalMove, float _verticalMove)
+    {
+        direction = Vector3.forward * _verticalMove + Vector3.right * _horizontalMove;
+        direction = Quaternion.Euler(0, 60, 0) * direction;
 
-    public void Rotate(float rotate, float rotateSpeed)
-    {
-        Vector3 vector = new Vector3(0f, rotate * rotateSpeed, 0f);
-        Quaternion deltaRotation = Quaternion.Euler(vector * Time.deltaTime);
-        rb.MoveRotation(rb.rotation * deltaRotation);
-    }
-
-    public TankModel GetTankModel()
-    {
-        return tankModel;
-    }
-    public TankView GetTankView() // Add this method
-    {
-        return tankView;
+        rb.velocity = direction * tankModel.speed;
+        tankView.transform.LookAt(direction.normalized + tankView.transform.position);
     }
 }

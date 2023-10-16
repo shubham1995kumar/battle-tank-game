@@ -1,46 +1,20 @@
-﻿//singleton.cs
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Singleton<T> : MonoBehaviour where T: MonoBehaviour
+public class Singleton<T> : MonoBehaviour where T : Singleton<T>
 {
-	private static T _instance;
-
-    void Start()
-    {
-        PlayerTank.Instance.Fire();
-        EnemyTank.Instance.Move();
-    }
-    public static T Instance
-    {
-        get
-        {
-            if(_instance == null)
-            {
-                _instance = FindObjectOfType<T>();
-                 if(_instance == null)
-                {
-                    GameObject singletonObject = new GameObject(typeof(T).Name);
-                    _instance = singletonObject.AddComponent<T>();
-                }
-            }
-            return _instance;
-        }
-    }
-
+    private static T instance = null;
+    public static T Instance { get { return instance; } }
     protected virtual void Awake()
     {
-        if(_instance == null)
+        if (instance != null)
         {
-            _instance = this as T;
-            DontDestroyOnLoad(this.gameObject);
+            Destroy(this.gameObject);
+            return;
         }
         else
         {
-            Destroy(this.gameObject);
+            instance = (T)this;
+            DontDestroyOnLoad(this.gameObject);
         }
     }
-
-	
 }
